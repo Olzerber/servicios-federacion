@@ -1,0 +1,140 @@
+/* src/pages/AuthPage.css */
+
+.auth-page-container {
+    padding: 4rem 20px;
+    background-color: #f9fafb;
+    min-height: calc(100vh - 100px); /* Ajusta para que ocupe casi toda la pantalla */
+}
+
+.auth-content {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.auth-card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.auth-card h2 {
+    font-size: 1.8rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* --- Botones Sociales y Forms --- */
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    transition: background-color 0.3s;
+    border: 1px solid #d1d5db;
+    color: #1f2937;
+}
+
+.social-btn:hover:not(:disabled) {
+    background-color: #f3f4f6;
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.primary-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.primary-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.secondary-btn {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.secondary-btn:hover {
+    background-color: #e5e7eb;
+}
+
+/* Separador "o" */
+.divider {
+    text-align: center;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+    color: #9ca3af;
+    position: relative;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: #e5e7eb;
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+.register-info {
+    color: #4b5563;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    padding: 10px;
+    background-color: #eff6ff;
+    border-left: 3px solid #2563eb;
+    border-radius: 4px;
+}
+
+@media (max-width: 900px) {
+    .auth-content {
+        grid-template-columns: 1fr;
+    }
+}

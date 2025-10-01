@@ -1,0 +1,96 @@
+.professionals-section {
+    padding: 4rem 0;
+    background-color: white;
+  }
+  
+  .professionals-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .professionals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .professional-card {
+    background-color: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .professional-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .card-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .photo-placeholder {
+    width: 60px;
+    height: 60px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+  
+  .card-info {
+    flex: 1;
+  }
+  
+  .professional-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #1f2937;
+  }
+  
+  .profession {
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+  
+  .description {
+    color: #4b5563;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+  
+  @media (max-width: 768px) {
+    .professionals-section {
+      padding: 2rem 0;
+    }
+  
+    .professionals-grid {
+      grid-template-columns: 1fr;
+    }
+  }

@@ -1,0 +1,168 @@
+.complete-profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 20px;
+    min-height: 80vh;
+    background-color: #f8fafc;
+}
+
+.profile-step {
+    max-width: 700px;
+    width: 100%;
+    padding: 3rem;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.profile-step h1 {
+    font-size: 2.25rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.profile-step h2 {
+    font-size: 1.75rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #6b7280;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* --- Selección de Roles (Vista 1) --- */
+.role-options {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.role-card {
+    flex: 1;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    text-align: left;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-color: #f9fafb;
+}
+
+.role-card:hover {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.role-card i {
+    font-size: 2rem;
+    color: #2563eb;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.role-card h3 {
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.role-card p {
+    color: #4b5563;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.select-btn {
+    display: inline-block;
+    color: #2563eb;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+/* --- Formularios (Vista 2 y 3) --- */
+.form-view {
+    text-align: left;
+}
+
+.form-view form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.form-view label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.form-view input,
+.form-view select {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.back-btn {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+    background-color: #e5e7eb;
+}
+
+.primary-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: auto; /* Ajuste para flexbox */
+}
+
+.primary-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-step {
+        padding: 2rem 1.5rem;
+    }
+    .role-options {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+    .back-btn, .primary-btn {
+        width: 100%;
+    }
+}
