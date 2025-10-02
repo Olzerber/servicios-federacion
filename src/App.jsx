@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
 
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
@@ -12,10 +13,18 @@ import Footer from './components/Footer';
 import RoleSelectorPage from './pages/RoleSelectorPage';
 import CompleteProfile from './pages/CompleteProfile';
 import AuthPage from './pages/AuthPage';
-
+import ClientDashboard from './pages/ClientDashboard';
+import ProfessionalDashboard from './pages/ProfessionalDashboard';
+import ServiciosPage from './pages/ServiciosPage';
 import { auth, signInWithGoogle, signOutUser } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 import { getUserProfile } from './firestore';
+
+export const AuthContext = createContext({
+  user: null,
+  userProfile: null,
+  loadingAuth: true,
+  handleLogout: () => {}
+});
 
 const HomePage = () => (
   <>
@@ -28,143 +37,164 @@ const HomePage = () => (
   </>
 );
 
-const ProtectedRoute = ({ children, requiredRole = null, profile, location }) => {
-  if (!profile) return null;
-  
+const NosotrosPage = () => (
+  <div className="container" style={{ paddingTop: 'var(--spacing-3xl)' }}>
+    <div className="card">
+      <h1>Sobre Nosotros</h1>
+      <p>Conectamos clientes con profesionales de confianza en Concepción del Uruguay.</p>
+    </div>
+  </div>
+);
+
+const ProtectedRoute = ({ children, requiredRole = null, profile, location, loadingAuth }) => {
+  if (loadingAuth) return null;
+
+  if (!profile) {
+    return <Navigate to="/acceder" state={{ from: location }} replace />;
+  }
+
+  if (!profile.isProfileComplete) {
+    return <Navigate to="/completar-perfil" state={{ from: location }} replace />;
+  }
+
   if (requiredRole && profile.role && profile.role !== requiredRole) {
-    const target = profile.role === 'client' ? '/dashboard/cliente' : '/dashboard/profesional';
+    const target = profile.role === 'client' ? '/dashboard/cliente' : '/dashboard/professional';
     return <Navigate to={target} state={{ from: location }} replace />;
   }
+
   return children;
 };
 
-const DashboardCliente = () => (
-  <div style={{ padding: '2rem' }}>
-    <h2>Panel de Cliente</h2>
-    <p>Aquí verás los servicios contratados.</p>
-  </div>
-);
-
-const DashboardProfesional = () => (
-  <div style={{ padding: '2rem' }}>
-    <h2>Panel Profesional</h2>
-    <p>Aquí verás trabajos en progreso y métricas.</p>
-  </div>
-);
-
-const App = () => {
+const AppContent = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [currentUser, setCurrentUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
+
+  const handleGoogleLogin = () => signInWithGoogle();
+
+  const handleLogout = async () => {
+    try {
+      await signOutUser();
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
       if (user) {
-        const p = await getUserProfile(user.uid);
-        setProfile(p);
+        try {
+          const profileData = await getUserProfile(user.uid);
+          setCurrentUser(user);
+          setProfile(profileData);
+
+          // SI NO EXISTE PERFIL EN FIRESTORE, forzar completar-perfil
+          if (!profileData) {
+            if (location.pathname !== '/completar-perfil') {
+              navigate('/completar-perfil', { replace: true });
+            }
+            setLoadingAuth(false);
+            return;
+          }
+
+          // Si el perfil existe pero no está completo
+          if (!profileData.isProfileComplete) {
+            if (location.pathname !== '/completar-perfil') {
+              navigate('/completar-perfil', { replace: true });
+            }
+          } else if (profileData.isProfileComplete) {
+            // Solo redirigir al dashboard si está en páginas de auth
+            if (
+              location.pathname === '/acceder' ||
+              location.pathname.startsWith('/registro') ||
+              location.pathname === '/elegir-rol' ||
+              location.pathname === '/completar-perfil'
+            ) {
+              const dashboardPath =
+                profileData.role === 'client' ? '/dashboard/cliente' : '/dashboard/profesional';
+              navigate(dashboardPath, { replace: true });
+            }
+          }
+        } catch (error) {
+          console.error('Error al cargar perfil:', error);
+          setCurrentUser(null);
+          setProfile(null);
+        } finally {
+          setLoadingAuth(false);
+        }
       } else {
+        // Usuario NO autenticado
+        setCurrentUser(null);
         setProfile(null);
+        setLoadingAuth(false);
+
+        // Solo redirigir si está en rutas protegidas
+        if (location.pathname.startsWith('/dashboard') || location.pathname === '/completar-perfil') {
+          navigate('/', { replace: true });
+        }
       }
-      setLoadingAuth(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [navigate, location.pathname]);
 
-  // Redirección automática solo si el usuario está autenticado
-  useEffect(() => {
-    if (loadingAuth) return;
-
-    // Si está en flujo de registro, no redirigir
-    if (location.pathname.startsWith('/registro') || location.pathname === '/elegir-rol') {
-      return;
-    }
-
-    if (currentUser && profile) {
-      // Si el perfil NO está completo, llevar a completar perfil
-      if (!profile.isProfileComplete) {
-        if (location.pathname !== '/completar-perfil') {
-          navigate('/completar-perfil');
-        }
-        return;
-      }
-
-      // Si el perfil está completo y no está en dashboard, redirigir
-      const targetDash = profile.role === 'client' ? '/dashboard/cliente' : '/dashboard/profesional';
-      if (!location.pathname.startsWith('/dashboard')) {
-        navigate(targetDash, { replace: true });
-      }
-    }
-  }, [currentUser, profile, loadingAuth, navigate, location]);
-
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      console.error('Error al iniciar sesión con Google:', error);
-      alert('Error al iniciar sesión con Google.');
-    }
+  const authContextValue = {
+    user: currentUser,
+    userProfile: profile,
+    loadingAuth,
+    handleLogout,
+    handleGoogleLogin
   };
 
-  const handleLogout = async () => {
-    await signOutUser();
-    setCurrentUser(null);
-    setProfile(null);
-    navigate('/');
-  };
-
-  if (loadingAuth) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</div>;
-  }
+  const isDashboard = location.pathname.startsWith('/dashboard');
 
   return (
-    <>
-      <Header user={currentUser} onLogout={handleLogout} />
-      <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/servicios" element={<h1>Página de Servicios</h1>} />
-          <Route path="/nosotros" element={<h1>Página Nosotros</h1>} />
+    <AuthContext.Provider value={authContextValue}>
+      <Header isDashboard={isDashboard} />
+      <main className={isDashboard ? 'dashboard-layout' : ''}>
+        {loadingAuth ? (
+          <div style={{ padding: '50px', textAlign: 'center' }}>Cargando sesión...</div>
+        ) : (
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/servicios" element={<ServiciosPage />} />
+            <Route path="/nosotros" element={<NosotrosPage />} />
+            
+            <Route path="/elegir-rol" element={<RoleSelectorPage />} />
 
-          {/* Login (sin rol) */}
-          <Route path="/acceder" element={<AuthPage handleGoogleLogin={handleGoogleLogin} />} />
+            <Route path="/registro/:role" element={<AuthPage handleGoogleLogin={handleGoogleLogin} />} />
+            <Route path="/acceder" element={<AuthPage handleGoogleLogin={handleGoogleLogin} />} />
 
-          {/* Selección de rol */}
-          <Route path="/elegir-rol" element={<RoleSelectorPage />} />
+            <Route path="/completar-perfil" element={<CompleteProfile />} />
 
-          {/* Registro con rol específico */}
-          <Route path="/registro/:role" element={<AuthPage handleGoogleLogin={handleGoogleLogin} />} />
+            <Route
+              path="/dashboard/cliente"
+              element={
+                <ProtectedRoute profile={profile} location={location} loadingAuth={loadingAuth} requiredRole="client">
+                  <ClientDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/profesional"
+              element={
+                <ProtectedRoute profile={profile} location={location} loadingAuth={loadingAuth} requiredRole="professional">
+                  <ProfessionalDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Completar perfil (para Google login) */}
-          <Route path="/completar-perfil" element={<CompleteProfile />} />
-
-          {/* Dashboards */}
-          <Route 
-            path="/dashboard/cliente" 
-            element={
-              <ProtectedRoute profile={profile} location={location} requiredRole="client">
-                <DashboardCliente />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/dashboard/profesional" 
-            element={
-              <ProtectedRoute profile={profile} location={location} requiredRole="professional">
-                <DashboardProfesional />
-              </ProtectedRoute>
-            } 
-          />
-
-          <Route path="*" element={<h1>404: Página no encontrada</h1>} />
-        </Routes>
+            <Route path="*" element={<div className="container" style={{paddingTop: '3rem'}}><h1>404: Página no encontrada</h1></div>} />
+          </Routes>
+        )}
       </main>
       <Footer />
-    </>
+    </AuthContext.Provider>
   );
 };
+
+const App = () => <AppContent />;
 
 export default App;

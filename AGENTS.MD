@@ -1,4 +1,4 @@
-# AGENTS.md — Servicios Federación (FASE 1)
+# AGENTS.md — ServiFederación (FASE 1)
 
 ## Descripción del Proyecto
 
@@ -12,6 +12,7 @@ Plataforma web que conecta clientes con profesionales de servicios locales (elec
 
 - **Frontend:** React 18 + Vite
 - **Estilos:** CSS puro con variables CSS (ver `global.css`)
+- **Iconos:** Material Icons (Rounded)
 - **Autenticación:** Firebase Auth (Google + Email/Contraseña)
 - **Base de datos:** Firestore
 - **Routing:** React Router v6
@@ -48,11 +49,11 @@ src/
 **IMPORTANTE:** Todos los componentes deben usar las variables CSS definidas en `src/global.css`.
 
 ### Colores principales:
-- **Primario:** `var(--primary)` → #2563eb (azul)
-- **Hover primario:** `var(--primary-hover)` → #1d4ed8
+- **Primario:** `var(--primary)` → #3F72AF
+- **Hover primario:** `var(--primary-hover)` → #1E6091
 - **Texto principal:** `var(--text-primary)` → #1f2937
 - **Texto secundario:** `var(--text-secondary)` → #4b5563
-- **Fondo:** `var(--bg-secondary)` → #f9fafb
+- **Fondo:** `var(--bg-secondary)` → #f9fafb;
 
 ### Ejemplo de uso:
 ```css
@@ -289,7 +290,7 @@ Recordá que estamos en **FASE 1**. Si te piden algo relacionado con pagos, repu
 
 ## Información de Contexto
 
-- **Ubicación:** Concepción del Uruguay, Entre Ríos, Argentina
+- **Ubicación:** Federación, Entre Ríos, Argentina
 - **Moneda:** Pesos argentinos (ARS)
 - **Idioma:** Español (es-AR)
 - **Formato de teléfono:** 10 dígitos sin 0 ni 15 (ej: 3456123456)

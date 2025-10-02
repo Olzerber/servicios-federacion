@@ -1,64 +1,66 @@
+/* src/components/Footer.css */
+
 .footer {
-    background-color: #1f2937;
-    color: white;
-    padding: 3rem 0 1rem;
+  background-color: var(--primary-dark);
+  color: var(--bg-primary);
+  padding: var(--spacing-2xl) 0 var(--spacing-md);
+}
+
+.footer-container {
+  max-width: var(--max-width-xl); /* Ajustado a variable */
+  margin: 0 auto;
+  padding: 0 var(--spacing-md); /* Ajustado a variable */
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-xl); /* Ajustado a variable */
+  margin-bottom: var(--spacing-xl); /* Ajustado a variable */
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm); /* Ajustado a variable */
+}
+
+.footer-title {
+  font-weight: var(--font-semibold); /* Ajustado a variable */
+  margin-bottom: var(--spacing-sm); /* Ajustado a variable */
+  font-size: var(--text-lg); /* Ajustado a variable */
+  color: var(--bg-primary); /* Asegura que el título sea blanco */
+}
+
+.footer-link {
+  color: var(--text-light); /* Usando un color claro para los links */
+  text-decoration: none;
+  transition: color var(--transition-fast); /* Ajustado a variable */
+}
+
+.footer-link:hover {
+  color: var(--accent); /* Ajustado a variable para un hover atractivo */
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--text-secondary); /* Usando un tono más oscuro para el borde */
+  padding-top: var(--spacing-xl); /* Ajustado a variable */
+  text-align: center;
+}
+
+.copyright {
+  color: var(--text-muted); /* Ajustado a variable */
+  font-size: var(--text-sm); /* Ajustado a variable */
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: var(--spacing-xl) 0 var(--spacing-md); /* Ajustado a variable */
   }
-  
-  .footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  
+
   .footer-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    margin-bottom: 2rem;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg); /* Ajustado a variable */
   }
-  
-  .footer-column {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .footer-title {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
-    color: white;
-  }
-  
-  .footer-link {
-    color: #d1d5db;
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  
-  .footer-link:hover {
-    color: #60a5fa;
-  }
-  
-  .footer-bottom {
-    border-top: 1px solid #374151;
-    padding-top: 2rem;
-    text-align: center;
-  }
-  
-  .copyright {
-    color: #9ca3af;
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
-  
-  @media (max-width: 768px) {
-    .footer {
-      padding: 2rem 0 1rem;
-    }
-  
-    .footer-grid {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-  }
+}

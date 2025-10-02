@@ -1,72 +1,77 @@
+/* src/components/Testimonials.css */
+
 .testimonials-section {
-    padding: 4rem 0;
-    background-color: white;
+  padding: var(--spacing-2xl) 0; /* Ajustado a variable */
+  background-color: var(--bg-primary); /* Ajustado a variable */
+}
+
+.testimonials-container {
+  max-width: var(--max-width-xl); /* Ajustado a variable */
+  margin: 0 auto;
+  padding: 0 var(--spacing-md); /* Ajustado a variable */
+}
+
+.testimonials-title {
+  font-size: var(--text-3xl); /* Ajustado a variable */
+  font-weight: var(--font-bold); /* Ajustado a variable */
+  text-align: center;
+  margin-bottom: var(--spacing-2xl); /* Ajustado a variable */
+  color: var(--text-primary); /* Ajustado a variable */
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl); /* Ajustado a variable */
+}
+
+.testimonial-card {
+  background-color: var(--bg-secondary); /* Fondo ligeramente gris para la tarjeta */
+  padding: var(--spacing-xl); /* Ajustado a variable */
+  border-radius: var(--radius-md); /* Ajustado a variable */
+  position: relative;
+  transition: transform var(--transition-base), box-shadow var(--transition-base); /* Ajustado a variable */
+  border: 1px solid var(--border-light); /* Añadido un borde sutil */
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md); /* Sombra más pronunciada en hover */
+}
+
+.quote-icon {
+  font-size: var(--text-4xl); /* Tamaño grande para el ícono de cita */
+  color: var(--primary); /* Usando el primary color para el ícono */
+  opacity: 0.2; /* Lo mantiene sutil en el fondo */
+  margin-bottom: var(--spacing-md); /* Ajustado a variable */
+  line-height: 1;
+  display: block; /* Asegura que ocupe su propio espacio */
+}
+
+.testimonial-text {
+  font-size: var(--text-base); /* Ajustado a variable */
+  color: var(--text-secondary); /* Ajustado a variable */
+  margin-bottom: var(--spacing-md); /* Ajustado a variable */
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.testimonial-author {
+  font-weight: var(--font-semibold); /* Ajustado a variable */
+  color: var(--text-primary); /* Ajustado a variable */
+  font-size: var(--text-lg); /* Tamaño de fuente para el autor */
+}
+
+@media (max-width: 768px) {
+  .testimonials-section {
+    padding: var(--spacing-xl) 0; /* Ajustado a variable */
   }
-  
-  .testimonials-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  
+
   .testimonials-title {
-    font-size: 1.75rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 3rem;
-    color: #1f2937;
+    font-size: var(--text-2xl); /* Ajustado a variable */
   }
-  
+
   .testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
+    grid-template-columns: 1fr;
   }
-  
-  .testimonial-card {
-    background-color: #f9fafb;
-    padding: 2rem;
-    border-radius: 8px;
-    position: relative;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-  
-  .testimonial-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .quote-icon {
-    font-size: 3rem;
-    color: #2563eb;
-    opacity: 0.2;
-    margin-bottom: 1rem;
-    line-height: 1;
-  }
-  
-  .testimonial-text {
-    font-size: 1rem;
-    color: #4b5563;
-    margin-bottom: 1rem;
-    font-style: italic;
-    line-height: 1.6;
-  }
-  
-  .testimonial-author {
-    font-weight: 600;
-    color: #1f2937;
-  }
-  
-  @media (max-width: 768px) {
-    .testimonials-section {
-      padding: 2rem 0;
-    }
-  
-    .testimonials-title {
-      font-size: 1.5rem;
-    }
-  
-    .testimonials-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+}

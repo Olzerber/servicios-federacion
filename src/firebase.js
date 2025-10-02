@@ -1,4 +1,5 @@
-import { initializeApp } from 'firebase/app'
+
+import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
   GoogleAuthProvider, 
@@ -6,9 +7,11 @@ import {
   signOut, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
-  sendEmailVerification 
-} from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore' // NUEVO
+  sendEmailVerification,
+  // Importamos la función para actualizar el perfil de Auth
+  updateProfile 
+} from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 
 const firebaseConfig = {
@@ -22,34 +25,70 @@ const firebaseConfig = {
 };
 
 // Inicializar Firebase
-const app = initializeApp(firebaseConfig)
-export const auth = getAuth(app)
-export const db = getFirestore(app) 
+const app = initializeApp(firebaseConfig);
 
-// Proveedor de Google
-const provider = new GoogleAuthProvider()
+// Exportar instancias de servicios (Auth y Firestore)
+export const auth = getAuth(app);
+export const db = getFirestore(app); 
 
-// REGISTRO con Email y Contraseña
-export const registerUser = (email, password) => {
+// Proveedor de Google (necesario para signInWithPopup)
+const provider = new GoogleAuthProvider();
+
+// --- FUNCIONES DE AUTENTICACIÓN ---
+// Se agrega 'async' para mejor manejo de Promesas y errores.
+
+/**
+ * REGISTRO con Email y Contraseña
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<import('firebase/auth').UserCredential>}
+ */
+export const registerUser = async (email, password) => {
   return createUserWithEmailAndPassword(auth, email, password);
 };
 
-// INICIO DE SESIÓN con Email y Contraseña
-export const signInUser = (email, password) => {
+/**
+ * INICIO DE SESIÓN con Email y Contraseña
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<import('firebase/auth').UserCredential>}
+ */
+export const signInUser = async (email, password) => {
   return signInWithEmailAndPassword(auth, email, password);
 };
 
-// ENVÍO DE CORREO DE VERIFICACIÓN
-export const sendVerificationEmail = (user) => {
+/**
+ * ENVÍO DE CORREO DE VERIFICACIÓN
+ * @param {import('firebase/auth').User} user
+ * @returns {Promise<void>}
+ */
+export const sendVerificationEmail = async (user) => {
   return sendEmailVerification(user);
 };
 
-// INICIO DE SESIÓN con Google
-export const signInWithGoogle = () => {
-  return signInWithPopup(auth, provider)
-}
+/**
+ * Actualiza el perfil de autenticación del usuario actual (displayName, photoURL, etc.).
+ * NOTA: Esto solo actualiza el registro de Firebase Auth, NO la base de datos de Firestore.
+ * @param {import('firebase/auth').User} user
+ * @param {object} profileData - Objeto con los campos a actualizar (ej: { displayName: 'Nombre Completo' })
+ * @returns {Promise<void>}
+ */
+export const updateAuthProfile = async (user, profileData) => {
+  return updateProfile(user, profileData);
+};
 
-// CERRAR SESIÓN
-export const signOutUser = () => {
-  return signOut(auth)
-}
+/**
+ * INICIO DE SESIÓN con Google
+ * @returns {Promise<import('firebase/auth').UserCredential>}
+ */
+export const signInWithGoogle = async () => {
+  return signInWithPopup(auth, provider);
+};
+
+/**
+ * CERRAR SESIÓN
+ * @returns {Promise<void>}
+ */
+export const signOutUser = async () => {
+  return signOut(auth);
+};

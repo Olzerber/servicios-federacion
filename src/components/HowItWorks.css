@@ -1,79 +1,83 @@
+/* src/components/HowItWorks.css */
+
 .how-it-works {
-    padding: 4rem 0;
-    background-color: white;
+  padding: var(--spacing-2xl) 0; /* Ajustado a variable */
+  background-color: var(--bg-primary); /* Ajustado a variable */
+}
+
+.how-container {
+  max-width: var(--max-width-xl); /* Ajustado a variable */
+  margin: 0 auto;
+  padding: 0 var(--spacing-md); /* Ajustado a variable */
+}
+
+.section-title {
+  font-size: var(--text-3xl); /* Ajustado a variable */
+  font-weight: var(--font-bold); /* Ajustado a variable */
+  text-align: center;
+  margin-bottom: var(--spacing-2xl); /* Ajustado a variable */
+  color: var(--text-primary); /* Ajustado a variable */
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-xl); /* Ajustado a variable */
+}
+
+.step-card {
+  background-color: var(--bg-primary); /* Ajustado a variable */
+  padding: var(--spacing-xl); /* Ajustado a variable */
+  border-radius: var(--radius-md); /* Ajustado a variable */
+  box-shadow: var(--shadow-sm); /* Usando shadow-sm para un efecto más sutil inicialmente */
+  text-align: center;
+  transition: transform var(--transition-base), box-shadow var(--transition-base); /* Ajustado a variable */
+  border: 1px solid var(--border-light); /* Añadido un borde sutil */
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md); /* Shadow más pronunciado en hover */
+}
+
+.step-icon {
+  color: var(--primary); /* Ajustado a variable */
+  margin-bottom: var(--spacing-md); /* Ajustado a variable */
+  display: flex;
+  justify-content: center;
+  font-size: var(--text-4xl); /* Iconos más grandes */
+}
+
+.step-number {
+  font-size: var(--text-sm); /* Ajustado a variable */
+  font-weight: var(--font-semibold); /* Ajustado a variable */
+  color: var(--secondary); /* Ajustado a variable */
+  margin-bottom: var(--spacing-sm); /* Ajustado a variable */
+}
+
+.step-title {
+  font-size: var(--text-xl); /* Ajustado a variable */
+  font-weight: var(--font-semibold); /* Ajustado a variable */
+  margin-bottom: var(--spacing-sm); /* Ajustado a variable */
+  color: var(--text-primary); /* Ajustado a variable */
+}
+
+.step-description {
+  color: var(--text-secondary); /* Ajustado a variable */
+  font-size: var(--text-base); /* Ajustado a variable */
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .how-it-works {
+    padding: var(--spacing-xl) 0; /* Ajustado a variable */
   }
-  
-  .how-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  
+
   .section-title {
-    font-size: 2rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 3rem;
-    color: #1f2937;
+    font-size: var(--text-2xl); /* Ajustado a variable */
   }
-  
+
   .steps-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
+    grid-template-columns: 1fr;
   }
-  
-  .step-card {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-  
-  .step-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  .step-icon {
-    color: #2563eb;
-    margin-bottom: 1rem;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .step-number {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #2563eb;
-    margin-bottom: 0.5rem;
-  }
-  
-  .step-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #1f2937;
-  }
-  
-  .step-description {
-    color: #6b7280;
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-  
-  @media (max-width: 768px) {
-    .how-it-works {
-      padding: 2rem 0;
-    }
-  
-    .section-title {
-      font-size: 1.5rem;
-    }
-  
-    .steps-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+}

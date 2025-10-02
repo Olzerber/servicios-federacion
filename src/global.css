@@ -5,11 +5,15 @@
    ======================================== */
 
    :root {
-    /* Colores Primarios */
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --primary-light: #3b82f6;
-    --primary-dark: #1e40af;
+    /* Colores Principales */
+    --primary: #3F72AF; /* Azul acero, profesional */
+    --secondary: #118AB2; /* Azul océano, algo vibrante */
+    --accent: #06D6A0; /* Verde aguamarina brillante, fresco */
+
+    /* Variantes */
+    --primary-hover: #1E6091; /* Un azul ligeramente más oscuro que el primary */
+    --primary-light: #A0DAF0; /* Azul cielo claro */
+    --primary-dark: #002B42; /* Azul muy oscuro, casi negro */
   
     /* Colores de Texto */
     --text-primary: #1f2937;
@@ -35,8 +39,8 @@
     --error-light: #fee2e2;
     --warning: #f59e0b;
     --warning-light: #fef3c7;
-    --info: #3b82f6;
-    --info-light: #dbeafe;
+    --info: #0A9396;
+    --info-light: #d1fae5;
   
     /* Sombras */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -133,10 +137,10 @@
     padding: var(--spacing-sm) var(--spacing-lg);
     border-radius: var(--radius-md);
     font-weight: var(--font-semibold);
-    cursor: pointer;
     transition: all var(--transition-base);
     border: none;
     font-size: var(--text-base);
+    cursor: pointer;
   }
   
   .btn-primary {
@@ -155,7 +159,7 @@
   }
   
   .btn-secondary:hover {
-    background-color: var(--border-light);
+    background-color: var(--bg-hover);
   }
   
   /* Cards */
@@ -204,8 +208,8 @@
   textarea:focus,
   select:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(10, 147, 150, 0.2);
   }
   
   /* Links */
@@ -216,5 +220,6 @@
   }
   
   a:hover {
-    color: var(--primary-hover);
+    color: var(--accent);
   }
+  

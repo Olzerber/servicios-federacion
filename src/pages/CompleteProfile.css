@@ -1,88 +1,109 @@
+/* src/pages/CompleteProfile.css */
+
 .complete-profile-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 4rem 20px;
-    min-height: 80vh;
-    background-color: #f8fafc;
+    padding: var(--spacing-2xl) var(--spacing-md);
+    min-height: calc(100vh - 100px);
+    background-color: var(--bg-secondary);
 }
 
 .profile-step {
-    max-width: 700px;
+    max-width: var(--max-width-md);
     width: 100%;
-    padding: 3rem;
-    background-color: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    /* Las propiedades de fondo, sombra, y border-radius ya están en la clase .card */
 }
 
 .profile-step h1 {
-    font-size: 2.25rem;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
 }
 
 .profile-step h2 {
-    font-size: 1.75rem;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
 }
 
 .subtitle {
-    color: #6b7280;
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
+    color: var(--text-secondary);
+    font-size: var(--text-lg);
+    margin-bottom: var(--spacing-2xl);
 }
 
 /* --- Selección de Roles (Vista 1) --- */
+.profile-step.selection {
+    text-align: center;
+}
+
 .role-options {
     display: flex;
-    gap: 2rem;
-    margin-top: 2rem;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
 }
 
 .role-card {
     flex: 1;
-    padding: 2rem;
-    border-radius: 12px;
-    border: 2px solid #e5e7eb;
-    text-align: left;
-    transition: all 0.3s ease;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-light);
+    text-align: center;
+    transition: all var(--transition-base);
     cursor: pointer;
-    background-color: #f9fafb;
+    background-color: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .role-card:hover {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    border-color: var(--primary-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
 }
 
-.role-card i {
-    font-size: 2rem;
-    color: #2563eb;
-    margin-bottom: 1rem;
+.role-card .material-icons-round {
+    font-size: var(--text-4xl);
+    color: var(--primary); /* Default color, adjusted for professional below */
+    margin-bottom: var(--spacing-md);
     display: block;
 }
 
 .role-card h3 {
-    font-size: 1.5rem;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
+    font-size: var(--text-xl);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
 }
 
 .role-card p {
-    color: #4b5563;
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    flex-grow: 1;
+    margin-bottom: var(--spacing-lg);
+}
+
+.professional-card .material-icons-round {
+    color: var(--accent);
 }
 
 .select-btn {
+    /* Reutilizamos el estilo de botón secundario o definimos uno específico */
     display: inline-block;
-    color: #2563eb;
-    font-weight: 600;
-    transition: color 0.3s;
+    color: var(--primary);
+    font-weight: var(--font-semibold);
+    transition: color var(--transition-fast);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
 }
+
+.role-card:hover .select-btn {
+    background-color: var(--bg-hover);
+}
+
 
 /* --- Formularios (Vista 2 y 3) --- */
 .form-view {
@@ -92,72 +113,50 @@
 .form-view form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
 }
 
 .form-view label {
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.25rem;
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+    margin-top: var(--spacing-sm);
 }
 
+/* Los estilos de input/select ya están en global.css, usamos solo las clases de utilidad */
 .form-view input,
 .form-view select {
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 1rem;
-    width: 100%;
-    box-sizing: border-box;
+    margin-top: 0;
+    /* Las propiedades de padding, border, radius, font-size ya están en global.css: input */
 }
 
 .form-actions {
     display: flex;
     justify-content: space-between;
-    margin-top: 2rem;
-    gap: 1rem;
+    margin-top: var(--spacing-2xl);
+    gap: var(--spacing-md);
 }
 
+/* Reutilizamos las clases de botones de global.css: .btn-primary y .btn-secondary */
 .back-btn {
-    background-color: #f3f4f6;
-    color: #4b5563;
-    border: 1px solid #d1d5db;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.back-btn:hover {
-    background-color: #e5e7eb;
+    /* Estilos ya cubiertos por .btn.btn-secondary */
+    width: 45%;
 }
 
 .primary-btn {
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    width: auto; /* Ajuste para flexbox */
-}
-
-.primary-btn:hover {
-    background-color: #1d4ed8;
+    /* Estilos ya cubiertos por .btn.btn-primary */
+    width: 55%;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .profile-step {
-        padding: 2rem 1.5rem;
+        padding: var(--spacing-xl);
     }
     .role-options {
         flex-direction: column;
-        gap: 1rem;
+        gap: var(--spacing-md);
     }
     .form-actions {
         flex-direction: column-reverse;

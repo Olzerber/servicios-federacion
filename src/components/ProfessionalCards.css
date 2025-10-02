@@ -1,96 +1,99 @@
+/* src/components/ProfessionalCards.css */
+
 .professionals-section {
-    padding: 4rem 0;
-    background-color: white;
+  padding: var(--spacing-2xl) 0;
+  background-color: var(--bg-primary); 
+}
+
+.professionals-container {
+  max-width: var(--max-width-xl); /* Ajustado a variable */
+  margin: 0 auto;
+  padding: 0 var(--spacing-md); /* Ajustado a variable */
+}
+
+.professionals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl); /* Ajustado a variable */
+}
+
+.professional-card {
+  background-color: var(--bg-primary); /* Ajustado a variable */
+  border: 2px solid var(--border-light); /* Ajustado a variable */
+  border-radius: var(--radius-lg); /* Ajustado a variable */
+  padding: var(--spacing-lg); /* Ajustado a variable */
+  box-shadow: var(--shadow-sm); /* Ajustado a variable */
+  transition: transform var(--transition-base), box-shadow var(--transition-base); /* Ajustado a variable */
+}
+
+.professional-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md); /* Ajustado a variable */
+}
+
+.card-header {
+  display: flex;
+  gap: var(--spacing-md); /* Ajustado a variable */
+  margin-bottom: var(--spacing-md); /* Ajustado a variable */
+}
+
+.photo-placeholder {
+  width: 60px;
+  height: 60px;
+  background-color: var(--bg-tertiary); /* Ajustado a variable */
+  border-radius: var(--radius-md); /* Ajustado a variable */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-3xl); /* Ajustado a variable */
+  flex-shrink: 0;
+  color: var(--text-muted); /* Color para el ícono/texto del placeholder */
+}
+
+.card-info {
+  flex: 1;
+}
+
+.professional-name {
+  font-size: var(--text-lg); /* Ajustado a variable */
+  font-weight: var(--font-semibold); /* Ajustado a variable */
+  margin-bottom: var(--spacing-xs); /* Ajustado a variable */
+  color: var(--text-primary); /* Ajustado a variable */
+}
+
+.profession {
+  color: var(--text-muted); /* Ajustado a variable */
+  font-size: var(--text-sm); /* Ajustado a variable */
+}
+
+.description {
+  color: var(--text-secondary); /* Ajustado a variable */
+  font-size: var(--text-base); /* Ajustado a variable */
+  margin-bottom: var(--spacing-md); /* Ajustado a variable */
+  line-height: 1.5;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: var(--spacing-md); /* Ajustado a variable */
+  border-top: 1px solid var(--border-light); /* Ajustado a variable */
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm); /* Ajustado a variable */
+  color: var(--text-muted); /* Ajustado a variable */
+  font-size: var(--text-sm); /* Ajustado a variable */
+}
+
+@media (max-width: 768px) {
+  .professionals-section {
+    padding: var(--spacing-xl) 0; /* Ajustado a variable */
   }
-  
-  .professionals-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  
+
   .professionals-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
+    grid-template-columns: 1fr;
   }
-  
-  .professional-card {
-    background-color: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-  
-  .professional-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  .card-header {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .photo-placeholder {
-    width: 60px;
-    height: 60px;
-    background-color: #f3f4f6;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    flex-shrink: 0;
-  }
-  
-  .card-info {
-    flex: 1;
-  }
-  
-  .professional-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    color: #1f2937;
-  }
-  
-  .profession {
-    color: #6b7280;
-    font-size: 0.9rem;
-  }
-  
-  .description {
-    color: #4b5563;
-    font-size: 0.95rem;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-  }
-  
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-  }
-  
-  .stat {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #6b7280;
-    font-size: 0.875rem;
-  }
-  
-  @media (max-width: 768px) {
-    .professionals-section {
-      padding: 2rem 0;
-    }
-  
-    .professionals-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+}
