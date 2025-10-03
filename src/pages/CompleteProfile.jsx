@@ -40,9 +40,9 @@ const CompleteProfile = () => {
       navigate('/acceder', { replace: true });
       return;
     }
-
+  
     const profile = globalUserProfile;
-
+  
     // Determinar paso inicial
     if (isSwitchingToProfessional) {
       setStep('professional-form');
@@ -56,11 +56,11 @@ const CompleteProfile = () => {
     } else {
       setStep('select-role');
     }
-
-    // Prellenar datos
-    if (authUser.displayName && !fullName && !profile?.fullName) {
+  
+    // Prellenar datos sólo si no hay valor guardado en profile y el estado local está vacío
+    if (!profile?.fullName && !fullName && authUser.displayName) {
       setFullName(authUser.displayName);
-    } else if (profile?.fullName) {
+    } else if (profile?.fullName && !fullName) {
       setFullName(profile.fullName);
     }
   
@@ -71,11 +71,13 @@ const CompleteProfile = () => {
     if (profile?.categories && Array.isArray(profile.categories)) {
       setCategories(profile.categories);
     }
-
+  
     if (profile?.bio) {
       setBio(profile.bio);
     }
-  }, [authUser, globalUserProfile, navigate, preSelectedRole, isSwitchingToProfessional, fullName]);
+    // DEPENDENCIAS: no incluir fullName aquí (evita re-escrituras durante edición)
+  }, [authUser, globalUserProfile, navigate, preSelectedRole, isSwitchingToProfessional]);
+  
 
   const handleSaveProfile = async (e, roleToSave) => {
     e.preventDefault();

@@ -75,6 +75,8 @@ const AppContent = () => {
   const [profile, setProfile] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
+  const initialCheckDoneRef = React.useRef(false);
+
 
   // Función para cargar perfil (sin setLoadingAuth)
   const fetchUserProfile = useCallback(async (uid) => {
@@ -107,27 +109,21 @@ const AppContent = () => {
     }
   };
 
-  // Auth listener - SOLO ejecuta lógica de redirección en el check inicial
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // Solo mostrar loading en la verificación inicial
-      if (!initialCheckDone) {
+      if (!initialCheckDoneRef.current) {
         setLoadingAuth(true);
       }
-
+  
       if (user) {
         setCurrentUser(user);
         const profileData = await fetchUserProfile(user.uid);
-        
-        // Solo redirigir en el check inicial o si estamos en rutas específicas
-        if (!initialCheckDone) {
+  
+        // ✅ Redirecciones en el primer check
+        if (!initialCheckDoneRef.current) {
           const isSwitchingToProfessional = sessionStorage.getItem('switchingToProfessional') === 'true';
-
-          if (!profileData) {
-            if (location.pathname !== '/completar-perfil') {
-              navigate('/completar-perfil', { replace: true });
-            }
-          } else if (!profileData.isProfileComplete) {
+  
+          if (!profileData || !profileData.isProfileComplete) {
             if (location.pathname !== '/completar-perfil') {
               navigate('/completar-perfil', { replace: true });
             }
@@ -138,9 +134,23 @@ const AppContent = () => {
               location.pathname === '/elegir-rol' ||
               (location.pathname === '/completar-perfil' && !isSwitchingToProfessional)
             ) {
-              const dashboardPath = profileData.role === 'client'
-                ? '/dashboard/cliente'
-                : '/dashboard/profesional';
+              const dashboardPath =
+                profileData.role === 'client'
+                  ? '/dashboard/cliente'
+                  : '/dashboard/profesional';
+              navigate(dashboardPath, { replace: true });
+            }
+          }
+        } else {
+          // ✅ Redirección también después de login si ya se hizo el check inicial
+          if (location.pathname === '/acceder') {
+            if (!profileData || !profileData.isProfileComplete) {
+              navigate('/completar-perfil', { replace: true });
+            } else {
+              const dashboardPath =
+                profileData.role === 'client'
+                  ? '/dashboard/cliente'
+                  : '/dashboard/profesional';
               navigate(dashboardPath, { replace: true });
             }
           }
@@ -149,28 +159,28 @@ const AppContent = () => {
         setCurrentUser(null);
         setProfile(null);
         sessionStorage.removeItem('switchingToProfessional');
-
-        if (!initialCheckDone) {
+  
+        if (!initialCheckDoneRef.current) {
           if (location.pathname.startsWith('/dashboard') || location.pathname === '/completar-perfil') {
             navigate('/', { replace: true });
           }
         }
       }
-
-      // Marcar que ya se hizo el check inicial
-      if (!initialCheckDone) {
-        setInitialCheckDone(true);
+  
+      if (!initialCheckDoneRef.current) {
+        initialCheckDoneRef.current = true;
         setLoadingAuth(false);
       }
     });
-
+  
     return () => unsubscribe();
-  }, [navigate, location.pathname, fetchUserProfile, initialCheckDone]);
+  }, [navigate, location.pathname, fetchUserProfile]);
+  
 
   const authContextValue = {
     user: currentUser,
     userProfile: profile,
-    loadingAuth: false, // Siempre false después del check inicial
+    loadingAuth,
     handleLogout,
     handleGoogleLogin,
     refreshProfile
