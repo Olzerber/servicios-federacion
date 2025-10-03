@@ -1,6 +1,9 @@
 import React from 'react';
+import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
+import EngineeringRoundedIcon from '@mui/icons-material/EngineeringRounded';
 import { useNavigate } from 'react-router-dom';
-// ... otros imports
+
+
 import './RoleSelectorPage.css';
 
 /**
@@ -29,7 +32,8 @@ const RoleSelectorPage = () => {
             // Rol que se envía: 'client'
             onClick={() => handleRoleSelection('client')}
           >
-            {/* ... Icono y textos ... */}
+            
+            <PeopleRoundedIcon />
             <h3>Soy Cliente</h3>
             <p>Quiero encontrar profesionales verificados, solicitar presupuestos y contratar servicios.</p>
             <span className="select-btn">Elegir Cliente →</span>
@@ -40,7 +44,8 @@ const RoleSelectorPage = () => {
             // Rol que se envía: 'professional'
             onClick={() => handleRoleSelection('professional')}
           >
-            {/* ... Icono y textos ... */}
+
+            <EngineeringRoundedIcon />
             <h3>Soy Profesional</h3>
             <p>Quiero ofrecer mis servicios, dar visibilidad a mi trabajo y hacer crecer mi negocio.</p>
             <span className="select-btn">Elegir Profesional →</span>

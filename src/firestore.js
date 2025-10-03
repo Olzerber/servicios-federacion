@@ -1,61 +1,115 @@
-import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from './firebase' 
+// src/firestore.js - CORRECCIÓN COMPLETA
 
-// Colección para la consulta general de perfiles
-// ASUME que los perfiles se guardan en una colección llamada 'userProfiles'
-const profilesCollection = collection(db, 'userProfiles'); 
+import { doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
+import { db } from './firebase';
 
-// Guarda o actualiza el perfil del usuario
+const profilesCollection = collection(db, 'userProfiles');
+
+/**
+ * Guarda o actualiza el perfil del usuario
+ */
 export const saveUserProfile = async (userId, data) => {
   try {
-    // Almacenamos el perfil en la colección principal 'userProfiles'
-    await setDoc(doc(profilesCollection, userId), { 
-      uid: userId, // Agregar UID al documento para facilitar las consultas
-      ...data 
+    await setDoc(doc(profilesCollection, userId), {
+      uid: userId,
+      ...data,
+      updatedAt: new Date()
     }, { merge: true });
+    console.log('✅ Perfil guardado exitosamente:', userId);
     return true;
   } catch (error) {
-    console.error("Error saving user profile:", error);
+    console.error("❌ Error saving user profile:", error);
     throw new Error("Error al guardar el perfil en la base de datos.");
   }
 };
 
-// Obtiene el perfil del usuario
+/**
+ * Obtiene el perfil del usuario
+ */
 export const getUserProfile = async (userId) => {
   try {
     const docSnap = await getDoc(doc(profilesCollection, userId));
     if (docSnap.exists()) {
-      return docSnap.data();
+      const profile = docSnap.data();
+      return profile;
     }
     return null;
   } catch (error) {
-    console.error("Error leyendo perfil:", error);
+    console.error("❌ Error leyendo perfil:", error);
     return null;
   }
 };
 
 /**
- * Obtiene todos los perfiles de profesionales con el perfil completo.
+ * Actualiza el rol del usuario
+ */
+export const updateUserProfileRole = async (userId, newRole) => {
+  try {
+    await updateDoc(doc(profilesCollection, userId), { 
+      role: newRole,
+      updatedAt: new Date()
+    });
+    console.log('✅ Rol actualizado a:', newRole);
+    return true;
+  } catch (error) {
+    console.error("❌ Error updating user role:", error);
+    throw new Error("Error al actualizar el rol del usuario.");
+  }
+};
+
+/**
+ * Actualiza datos profesionales específicos
+ */
+export const updateProfessionalData = async (userId, professionalData) => {
+  try {
+    await updateDoc(doc(profilesCollection, userId), {
+      ...professionalData,
+      updatedAt: new Date()
+    });
+    console.log('✅ Datos profesionales actualizados');
+    return true;
+  } catch (error) {
+    console.error("❌ Error updating professional data:", error);
+    throw new Error("Error al actualizar datos profesionales.");
+  }
+};
+
+/**
+ * Obtiene todos los perfiles de profesionales publicados
+ * CRÍTICO: Ya NO excluye al usuario actual - todos ven todos los profesionales publicados
  * @returns {Promise<Array<Object>>} Lista de perfiles de profesionales.
  */
 export const getProfessionalProfiles = async () => {
-    try {
-        const q = query(
-            profilesCollection,
-            where('role', '==', 'professional'),
-            where('isProfileComplete', '==', true) // Filtra solo perfiles que se hayan completado
-        );
-        const querySnapshot = await getDocs(q);
-        const profiles = [];
-        querySnapshot.forEach((doc) => {
-            profiles.push({
-                id: doc.id, 
-                ...doc.data()
-            });
-        });
-        return profiles;
-    } catch (error) {
-        console.error('Error al obtener perfiles de profesionales:', error);
-        throw new Error('Fallo la carga de profesionales desde la base de datos.');
-    }
+  try {
+    console.log('🔍 Buscando profesionales publicados...');
+    
+    const q = query(
+      profilesCollection,
+      where('role', '==', 'professional'),
+      where('isProfileComplete', '==', true),
+      where('isServicePublished', '==', true)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const profiles = [];
+    
+    querySnapshot.forEach((doc) => {
+      profiles.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    console.log(`✅ Se encontraron ${profiles.length} profesionales publicados`);
+    
+    // Debug detallado
+    profiles.forEach(p => {
+      console.log(`  📋 ${p.fullName || 'Sin nombre'}: ${p.categories?.join(', ') || 'Sin categorías'} | Publicado: ${p.isServicePublished}`);
+    });
+    
+    return profiles;
+  } catch (error) {
+    console.error('❌ Error al obtener perfiles de profesionales:', error);
+    throw new Error('Falló la carga de profesionales desde la base de datos.');
+  }
 };

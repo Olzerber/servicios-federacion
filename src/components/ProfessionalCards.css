@@ -1,98 +1,112 @@
-/* src/components/ProfessionalCards.css */
-
 .professionals-section {
-  padding: var(--spacing-2xl) 0;
-  background-color: var(--bg-primary); 
+  padding: 40px 0;
+  background: #f7f7f7;
 }
 
 .professionals-container {
-  max-width: var(--max-width-xl); /* Ajustado a variable */
+  max-width: var(--max-width-xl);
   margin: 0 auto;
-  padding: 0 var(--spacing-md); /* Ajustado a variable */
+  padding: 0 16px;
 }
 
 .professionals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing-xl); /* Ajustado a variable */
+  /* Tarjetas cuadradas grandes y responsive: mínimo 320px por tarjeta */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 22px;
 }
 
 .professional-card {
-  background-color: var(--bg-primary); /* Ajustado a variable */
-  border: 2px solid var(--border-light); /* Ajustado a variable */
-  border-radius: var(--radius-lg); /* Ajustado a variable */
-  padding: var(--spacing-lg); /* Ajustado a variable */
-  box-shadow: var(--shadow-sm); /* Ajustado a variable */
-  transition: transform var(--transition-base), box-shadow var(--transition-base); /* Ajustado a variable */
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 16px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  aspect-ratio: 1 / 1; /* Cuadrada */
+  box-shadow: 0 2px 6px rgba(0,0,0,.05);
+  transition: transform .25s ease, box-shadow .25s ease;
 }
 
 .professional-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-md); /* Ajustado a variable */
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,.08);
 }
 
 .card-header {
   display: flex;
-  gap: var(--spacing-md); /* Ajustado a variable */
-  margin-bottom: var(--spacing-md); /* Ajustado a variable */
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
 .photo-placeholder {
-  width: 60px;
-  height: 60px;
-  background-color: var(--bg-tertiary); /* Ajustado a variable */
-  border-radius: var(--radius-md); /* Ajustado a variable */
+  width: 54px;
+  height: 54px;
+  border-radius: 8px;
+  background-color: #e9e9e9;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--text-3xl); /* Ajustado a variable */
+  font-weight: 700;
+  color: #555;
   flex-shrink: 0;
-  color: var(--text-muted); /* Color para el ícono/texto del placeholder */
 }
 
 .card-info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .professional-name {
-  font-size: var(--text-lg); /* Ajustado a variable */
-  font-weight: var(--font-semibold); /* Ajustado a variable */
-  margin-bottom: var(--spacing-xs); /* Ajustado a variable */
-  color: var(--text-primary); /* Ajustado a variable */
+  font-size: 14px;
+  margin: 0;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profession {
-  color: var(--text-muted); /* Ajustado a variable */
-  font-size: var(--text-sm); /* Ajustado a variable */
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-body {
+  padding: 6px 0;
+  font-size: 12px;
+  color: #555;
+  overflow: hidden;
 }
 
 .description {
-  color: var(--text-secondary); /* Ajustado a variable */
-  font-size: var(--text-base); /* Ajustado a variable */
-  margin-bottom: var(--spacing-md); /* Ajustado a variable */
-  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card-footer {
   display: flex;
   justify-content: space-between;
-  padding-top: var(--spacing-md); /* Ajustado a variable */
-  border-top: 1px solid var(--border-light); /* Ajustado a variable */
+  padding-top: 6px;
+  border-top: 1px solid var(--border-light);
+  font-size: 11px;
+  color: #666;
 }
 
 .stat {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm); /* Ajustado a variable */
-  color: var(--text-muted); /* Ajustado a variable */
-  font-size: var(--text-sm); /* Ajustado a variable */
+  gap: 6px;
 }
 
 @media (max-width: 768px) {
-  .professionals-section {
-    padding: var(--spacing-xl) 0; /* Ajustado a variable */
-  }
-
   .professionals-grid {
     grid-template-columns: 1fr;
   }

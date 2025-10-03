@@ -1,4 +1,6 @@
-import React, { useEffect, useState, createContext } from 'react';
+// src/App.jsx - OPTIMIZADO PARA ELIMINAR "Cargando sesión" constante
+
+import React, { createContext, useEffect, useState, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -23,7 +25,9 @@ export const AuthContext = createContext({
   user: null,
   userProfile: null,
   loadingAuth: true,
-  handleLogout: () => {}
+  handleLogout: () => {},
+  handleGoogleLogin: () => {},
+  refreshProfile: async () => {}
 });
 
 const HomePage = () => (
@@ -49,16 +53,15 @@ const NosotrosPage = () => (
 const ProtectedRoute = ({ children, requiredRole = null, profile, location, loadingAuth }) => {
   if (loadingAuth) return null;
 
-  if (!profile) {
-    return <Navigate to="/acceder" state={{ from: location }} replace />;
-  }
-
-  if (!profile.isProfileComplete) {
-    return <Navigate to="/completar-perfil" state={{ from: location }} replace />;
+  if (!profile || (!profile.isProfileComplete && location.pathname !== '/completar-perfil')) {
+    if (location.pathname === '/completar-perfil' && profile && !profile.isProfileComplete) {
+      return children;
+    }
+    return <Navigate to={profile ? '/completar-perfil' : '/acceder'} state={{ from: location }} replace />;
   }
 
   if (requiredRole && profile.role && profile.role !== requiredRole) {
-    const target = profile.role === 'client' ? '/dashboard/cliente' : '/dashboard/professional';
+    const target = profile.role === 'client' ? '/dashboard/cliente' : '/dashboard/profesional';
     return <Navigate to={target} state={{ from: location }} replace />;
   }
 
@@ -71,81 +74,106 @@ const AppContent = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
+
+  // Función para cargar perfil (sin setLoadingAuth)
+  const fetchUserProfile = useCallback(async (uid) => {
+    try {
+      const profileData = await getUserProfile(uid);
+      setProfile(profileData);
+      return profileData;
+    } catch (error) {
+      console.error('Error al cargar perfil:', error);
+      setProfile(null);
+      return null;
+    }
+  }, []);
+
+  // Función para refrescar perfil sin mostrar "Cargando sesión"
+  const refreshProfile = useCallback(async () => {
+    if (currentUser?.uid) {
+      await fetchUserProfile(currentUser.uid);
+    }
+  }, [currentUser, fetchUserProfile]);
 
   const handleGoogleLogin = () => signInWithGoogle();
 
   const handleLogout = async () => {
     try {
       await signOutUser();
+      sessionStorage.removeItem('switchingToProfessional');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
   };
 
+  // Auth listener - SOLO ejecuta lógica de redirección en el check inicial
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const profileData = await getUserProfile(user.uid);
-          setCurrentUser(user);
-          setProfile(profileData);
+      // Solo mostrar loading en la verificación inicial
+      if (!initialCheckDone) {
+        setLoadingAuth(true);
+      }
 
-          // SI NO EXISTE PERFIL EN FIRESTORE, forzar completar-perfil
+      if (user) {
+        setCurrentUser(user);
+        const profileData = await fetchUserProfile(user.uid);
+        
+        // Solo redirigir en el check inicial o si estamos en rutas específicas
+        if (!initialCheckDone) {
+          const isSwitchingToProfessional = sessionStorage.getItem('switchingToProfessional') === 'true';
+
           if (!profileData) {
             if (location.pathname !== '/completar-perfil') {
               navigate('/completar-perfil', { replace: true });
             }
-            setLoadingAuth(false);
-            return;
-          }
-
-          // Si el perfil existe pero no está completo
-          if (!profileData.isProfileComplete) {
+          } else if (!profileData.isProfileComplete) {
             if (location.pathname !== '/completar-perfil') {
               navigate('/completar-perfil', { replace: true });
             }
-          } else if (profileData.isProfileComplete) {
-            // Solo redirigir al dashboard si está en páginas de auth
+          } else {
             if (
               location.pathname === '/acceder' ||
               location.pathname.startsWith('/registro') ||
               location.pathname === '/elegir-rol' ||
-              location.pathname === '/completar-perfil'
+              (location.pathname === '/completar-perfil' && !isSwitchingToProfessional)
             ) {
-              const dashboardPath =
-                profileData.role === 'client' ? '/dashboard/cliente' : '/dashboard/profesional';
+              const dashboardPath = profileData.role === 'client'
+                ? '/dashboard/cliente'
+                : '/dashboard/profesional';
               navigate(dashboardPath, { replace: true });
             }
           }
-        } catch (error) {
-          console.error('Error al cargar perfil:', error);
-          setCurrentUser(null);
-          setProfile(null);
-        } finally {
-          setLoadingAuth(false);
         }
       } else {
-        // Usuario NO autenticado
         setCurrentUser(null);
         setProfile(null);
-        setLoadingAuth(false);
+        sessionStorage.removeItem('switchingToProfessional');
 
-        // Solo redirigir si está en rutas protegidas
-        if (location.pathname.startsWith('/dashboard') || location.pathname === '/completar-perfil') {
-          navigate('/', { replace: true });
+        if (!initialCheckDone) {
+          if (location.pathname.startsWith('/dashboard') || location.pathname === '/completar-perfil') {
+            navigate('/', { replace: true });
+          }
         }
+      }
+
+      // Marcar que ya se hizo el check inicial
+      if (!initialCheckDone) {
+        setInitialCheckDone(true);
+        setLoadingAuth(false);
       }
     });
 
     return () => unsubscribe();
-  }, [navigate, location.pathname]);
+  }, [navigate, location.pathname, fetchUserProfile, initialCheckDone]);
 
   const authContextValue = {
     user: currentUser,
     userProfile: profile,
-    loadingAuth,
+    loadingAuth: false, // Siempre false después del check inicial
     handleLogout,
-    handleGoogleLogin
+    handleGoogleLogin,
+    refreshProfile
   };
 
   const isDashboard = location.pathname.startsWith('/dashboard');
@@ -155,7 +183,32 @@ const AppContent = () => {
       <Header isDashboard={isDashboard} />
       <main className={isDashboard ? 'dashboard-layout' : ''}>
         {loadingAuth ? (
-          <div style={{ padding: '50px', textAlign: 'center' }}>Cargando sesión...</div>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            minHeight: '60vh' 
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                border: '4px solid var(--border-light)',
+                borderTopColor: 'var(--primary)',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+                margin: '0 auto var(--spacing-md)'
+              }}></div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
+                Verificando sesión...
+              </p>
+            </div>
+            <style>{`
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
         ) : (
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -186,7 +239,7 @@ const AppContent = () => {
               }
             />
 
-            <Route path="*" element={<div className="container" style={{paddingTop: '3rem'}}><h1>404: Página no encontrada</h1></div>} />
+            <Route path="*" element={<div className="container" style={{ paddingTop: '3rem' }}><h1>404: Página no encontrada</h1></div>} />
           </Routes>
         )}
       </main>

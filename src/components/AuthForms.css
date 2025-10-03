@@ -1,0 +1,248 @@
+/* src/components/AuthForms.css - Enfocado en los elementos del Formulario */
+
+/* --- Contenedor Principal del Formulario --- */
+.auth-form-container {
+    padding-top: 1rem; /* Espacio entre el botón de Google y el formulario de email */
+}
+
+/* Estilos de los Títulos del Formulario (Ahora dentro de AuthForms) */
+.auth-form-container h2 {
+    font-size: 2rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.auth-form-container .card-subtitle {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+
+/* --- Botón de Google (Social) --- */
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px; 
+    font-weight: 600;
+    background-color: white;
+    color: #1f2937;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Sombra sutil */
+}
+
+.google-btn:hover {
+    background-color: #f3f4f6;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.google-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.google-icon {
+    font-size: 1.25rem;
+    margin-right: 10px;
+}
+
+/* --- Separador 'O' --- */
+.divider {
+    text-align: center;
+    margin: 1.5rem 0;
+    font-size: 0.85rem;
+    color: #9ca3af;
+    position: relative;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: #e5e7eb;
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+/* --- Estilos de Inputs (Mejora de UX) --- */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.875rem; 
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.35rem;
+}
+
+.input-container {
+    position: relative;
+}
+
+.auth-form input,
+.auth-form select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px; 
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+    border-color: #2563eb; 
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Toggle de visibilidad de contraseña */
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.password-toggle-btn:hover {
+    color: #1f2937;
+}
+
+/* --- Botones de Acción (Submit) --- */
+.primary-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s, opacity 0.3s;
+    margin-top: 1.5rem; 
+}
+
+.primary-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --- Switch de Texto (Cambiar a Registro/Acceso) --- */
+.switch-text {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.link-btn {
+    color: #2563eb;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.25rem;
+    transition: color 0.2s;
+}
+
+.link-btn:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.small-link {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-top: 0.5rem;
+}
+
+/* --- Mensajes de Feedback --- */
+.error-message {
+    color: #ef4444; /* Rojo */
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.success-message {
+    color: #10b981; /* Verde */
+    background-color: #d1fae5;
+    border: 1px solid #6ee7b7;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+/* --- Selector de Rol (Cliente/Profesional) --- */
+.role-selector-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.role-tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 9999px; /* Pill shape */
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    background-color: #f9fafb;
+    color: #6b7280;
+}
+
+.role-tab.active {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: white;
+}
+
+.role-tab:hover:not(.active) {
+    background-color: #e5e7eb;
+}
+/* Ajustes para react-select */
+.select__control {
+    min-height: 45px;
+    border-radius: var(--radius-md);
+  }
+  
+  .select__multi-value {
+    border-radius: var(--radius-sm);
+  }

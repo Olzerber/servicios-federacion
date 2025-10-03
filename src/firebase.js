@@ -1,4 +1,3 @@
-
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -8,7 +7,7 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
   sendEmailVerification,
-  // Importamos la función para actualizar el perfil de Auth
+  // Aseguramos la importación de updateProfile
   updateProfile 
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -31,11 +30,10 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app); 
 
-// Proveedor de Google (necesario para signInWithPopup)
+// Proveedor de Google
 const provider = new GoogleAuthProvider();
 
 // --- FUNCIONES DE AUTENTICACIÓN ---
-// Se agrega 'async' para mejor manejo de Promesas y errores.
 
 /**
  * REGISTRO con Email y Contraseña
@@ -63,12 +61,14 @@ export const signInUser = async (email, password) => {
  * @returns {Promise<void>}
  */
 export const sendVerificationEmail = async (user) => {
+  // Configuraciones de idioma (opcional)
+  // const actionCodeSettings = { url: 'https://tu-dominio.com/login' };
+  // return sendEmailVerification(user, actionCodeSettings); 
   return sendEmailVerification(user);
 };
 
 /**
  * Actualiza el perfil de autenticación del usuario actual (displayName, photoURL, etc.).
- * NOTA: Esto solo actualiza el registro de Firebase Auth, NO la base de datos de Firestore.
  * @param {import('firebase/auth').User} user
  * @param {object} profileData - Objeto con los campos a actualizar (ej: { displayName: 'Nombre Completo' })
  * @returns {Promise<void>}

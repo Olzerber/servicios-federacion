@@ -1,295 +1,318 @@
-// src/pages/CompleteProfile.jsx
+// src/pages/CompleteProfile.jsx - OPTIMIZADO PARA NO MOSTRAR "Cargando..." INNECESARIAMENTE
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
-// Importamos la nueva función updateAuthProfile
-import { auth, updateAuthProfile } from '../firebase'; 
-import { saveUserProfile, getUserProfile } from '../firestore';
+import { updateAuthProfile } from '../firebase'; 
+import { saveUserProfile, updateUserProfileRole } from '../firestore';
+import { AuthContext } from '../App';
 import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 import EngineeringRoundedIcon from '@mui/icons-material/EngineeringRounded';
+import Select from "react-select";
 import './CompleteProfile.css';
 
-/**
- * @typedef {'select-role' | 'client-form' | 'professional-form'} Step
- */
+const CATEGORIES = [
+  { value: 'carpinteria', label: 'Carpintería' },
+  { value: 'electricidad', label: 'Electricidad' },
+  { value: 'plomeria', label: 'Plomería' },
+  { value: 'jardineria', label: 'Jardinería' },
+  { value: 'nineria', label: 'Niñera/Cuidado' },
+  { value: 'albanileria', label: 'Albañilería' },
+  { value: 'informatica', label: 'Informática/Reparación PC' },
+];
 
-/**
- * Componente para completar datos de perfil después de un registro (Email o Google).
- */
 const CompleteProfile = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    
-    const [user, setUser] = useState(null);
-    const [profile, setProfile] = useState(null);
-    const [loading, setLoading] = useState(true);
-    
-    /** @type {[Step, (step: Step) => void]} */
-    const [step, setStep] = useState('select-role'); 
-    const [fullName, setFullName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [category, setCategory] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user: authUser, userProfile: globalUserProfile, refreshProfile } = useContext(AuthContext);
 
-    // Leemos el rol preseleccionado del estado de navegación
-    const preSelectedRole = location.state?.preSelectedRole; // 'client' o 'professional'
+  const [step, setStep] = useState('select-role'); 
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [bio, setBio] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Definición de Categorías (para mantener la consistencia)
-    const CATEGORIES = [
-        { value: 'carpinteria', label: 'Carpintería' },
-        { value: 'electricidad', label: 'Electricidad' },
-        { value: 'plomeria', label: 'Plomería' },
-        { value: 'jardineria', label: 'Jardinería' },
-        { value: 'nineria', label: 'Niñera/Cuidado' },
-        { value: 'albanileria', label: 'Albañilería' },
-        { value: 'informatica', label: 'Informática/Reparación PC' },
-    ];
+  const preSelectedRole = location.state?.preSelectedRole;
+  const isSwitchingToProfessional = sessionStorage.getItem('switchingToProfessional') === 'true';
 
-
-    // --- LÓGICA PRINCIPAL DE AUTENTICACIÓN Y REDIRECCIÓN ---
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-          setLoading(true);
-          if (currentUser) {
-            setUser(currentUser);
-            const userProfile = await getUserProfile(currentUser.uid);
-            setProfile(userProfile);
-      
-            if (userProfile?.isProfileComplete) {
-              navigate(`/dashboard/${userProfile.role === 'client' ? 'cliente' : 'profesional'}`, { replace: true });
-              setLoading(false);
-              return;
-            }
-            
-            // Prellenar nombre
-            if (currentUser.displayName && !userProfile?.fullName) {
-              setFullName(currentUser.displayName);
-            } else if (userProfile?.fullName) {
-              setFullName(userProfile.fullName);
-            }
-      
-            // CORRECCIÓN CLAVE: Si tiene rol en Firestore, ir directo al formulario
-            if (userProfile?.role) {
-              setStep(userProfile.role === 'client' ? 'client-form' : 'professional-form');
-              if (userProfile.role === 'professional' && userProfile.category) {
-                setCategory(userProfile.category);
-              }
-            } else if (preSelectedRole) {
-              // Si viene con rol del state
-              setStep(preSelectedRole === 'client' ? 'client-form' : 'professional-form');
-            } else {
-              // Sin rol: mostrar selección
-              setStep('select-role');
-            }
-          } else {
-            navigate('/acceder', { replace: true });
-          }
-          setLoading(false);
-        });
-      
-        return () => unsubscribe();
-      }, [navigate, preSelectedRole]);
-
-    // --- MANEJO DE ENVÍO DE FORMULARIOS ---
-
-    const handleSaveProfile = async (e, role) => {
-        e.preventDefault();
-        if (!user || isSubmitting) return;
-
-        // Validación básica
-        if (!fullName.trim() || !phone.trim() || (role === 'professional' && !category)) {
-            alert("Por favor, completa todos los campos obligatorios.");
-            return;
-        }
-
-        setIsSubmitting(true);
-
-        const newProfileData = {
-            fullName: fullName.trim(),
-            phone: phone.trim(),
-            role,
-            isProfileComplete: true, // Marcamos el perfil como completo
-            ...(role === 'professional' && { category }), 
-        };
-
-        try {
-            // 1. ACTUALIZAR EL NOMBRE EN FIREBASE AUTH (RESUELVE EL PROBLEMA DEL HEADER)
-            if (user.displayName !== fullName.trim()) {
-                await updateAuthProfile(user, { displayName: fullName.trim() });
-            }
-
-            // 2. GUARDAR EL PERFIL COMPLETO EN FIRESTORE
-            await saveUserProfile(user.uid, newProfileData);
-            
-            // 3. Redirigir al dashboard correspondiente
-            navigate(`/dashboard/${role === 'client' ? 'cliente' : 'profesional'}`, { replace: true });
-
-        } catch (error) {
-            console.error('Error al guardar perfil:', error);
-            alert("Hubo un error al guardar tu perfil. Intenta de nuevo.");
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-
-    // --- MANEJO DE SELECCIÓN DE ROL ---
-    const handleRoleSelect = (role) => {
-        // Si ya hay un rol en el perfil (ej: vino de AuthPage), lo respeta.
-        // Si no, lo establece para el siguiente paso.
-        const newRole = profile?.role || role; 
-        setStep(newRole === 'client' ? 'client-form' : 'professional-form');
-    };
-
-    // --- RENDERIZACIÓN DE VISTAS ---
-
-    if (loading) {
-        return (
-            <div className="complete-profile-container">
-                <div className="card profile-step" style={{ textAlign: 'center' }}>
-                    <h1>Cargando...</h1>
-                    <p className="subtitle text-secondary">Estamos verificando tu estado de sesión.</p>
-                </div>
-            </div>
-        );
+  useEffect(() => {
+    if (!authUser) {
+      navigate('/acceder', { replace: true });
+      return;
     }
 
-    const renderRoleSelection = () => (
-        <div className="card profile-step selection">
-            <h1>¡Hola{user?.displayName ? `, ${user.displayName}` : ''}! 👋</h1>
-            <p className="subtitle">
-                Vemos que es tu primera vez, o tu perfil está incompleto. 
-                Para continuar, dinos: ¿Cómo quieres usar la plataforma?
-            </p>
-            <div className="role-options">
-                <div className="role-card client-card" onClick={() => handleRoleSelect('client')}>
-                    <span className="material-icons-round"><GroupRoundedIcon sx={{ fontSize: '2.5rem', color: 'var(--primary)' }}/></span>
-                    <h3>Soy Cliente</h3>
-                    <p>Quiero encontrar profesionales y contratar servicios.</p>
-                    <button className="btn btn-primary select-btn">Seleccionar Cliente →</button>
-                </div>
-                <div className="role-card professional-card" onClick={() => handleRoleSelect('professional')}>
-                    <span className="material-icons-round"><EngineeringRoundedIcon sx={{ fontSize: '2.5rem', color: 'var(--accent)' }}/></span>
-                    <h3>Soy Profesional</h3>
-                    <p>Quiero ofrecer mis servicios y conseguir nuevos trabajos.</p>
-                    <button className="btn btn-primary select-btn">Seleccionar Profesional →</button>
-                </div>
-            </div>
-        </div>
-    );
+    const profile = globalUserProfile;
 
-    const renderClientForm = () => (
-        <div className="card profile-step form-view">
-            <h2>Completa tu Perfil (Cliente)</h2>
-            <p className="subtitle text-secondary">Solo necesitamos unos pocos datos más para terminar el registro.</p>
+    // Determinar paso inicial
+    if (isSwitchingToProfessional) {
+      setStep('professional-form');
+    } else if (profile?.isProfileComplete) {
+      navigate(`/dashboard/${profile.role === 'client' ? 'cliente' : 'profesional'}`, { replace: true });
+      return;
+    } else if (profile?.role) {
+      setStep(profile.role === 'client' ? 'client-form' : 'professional-form');
+    } else if (preSelectedRole) {
+      setStep(preSelectedRole === 'client' ? 'client-form' : 'professional-form');
+    } else {
+      setStep('select-role');
+    }
 
-            <form onSubmit={(e) => handleSaveProfile(e, 'client')}>
-                <label htmlFor="fullName">Nombre y Apellido *</label>
-                <input
-                    id="fullName"
-                    type="text"
-                    placeholder="Tu Nombre Real"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                />
+    // Prellenar datos
+    if (authUser.displayName && !fullName && !profile?.fullName) {
+      setFullName(authUser.displayName);
+    } else if (profile?.fullName) {
+      setFullName(profile.fullName);
+    }
+  
+    if (profile?.phone) {
+      setPhone(profile.phone);
+    }
+  
+    if (profile?.categories && Array.isArray(profile.categories)) {
+      setCategories(profile.categories);
+    }
 
-                <label htmlFor="phone">Teléfono (WhatsApp)</label>
-                <input
-                    id="phone"
-                    type="tel"
-                    placeholder="Ej: 3456123456"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                />
+    if (profile?.bio) {
+      setBio(profile.bio);
+    }
+  }, [authUser, globalUserProfile, navigate, preSelectedRole, isSwitchingToProfessional, fullName]);
 
-                <div className="form-actions">
-                    {/* Mostrar Volver al Rol solo si NO venimos de un rol preseleccionado O si no tenemos rol aún */}
-                    {(!preSelectedRole && !profile?.role) && (
-                        <button type="button" onClick={() => setStep('select-role')} className="btn btn-secondary back-btn">← Volver al Rol</button>
-                    )}
-                    <button type="submit" className="btn btn-primary primary-btn" disabled={isSubmitting}>
-                        {isSubmitting ? 'Finalizando Perfil...' : 'Completar Registro'}
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
-
-
-    const renderProfessionalForm = () => (
-        <div className="card profile-step form-view">
-            <h2>Completa tu Perfil (Profesional)</h2>
-            <p className="subtitle text-secondary">Te pedimos más detalles para darte visibilidad en tu rubro.</p>
-            
-            <form onSubmit={(e) => handleSaveProfile(e, 'professional')}>
-                <label htmlFor="fullName">Nombre y Apellido (Real) *</label>
-                <input
-                    id="fullName"
-                    type="text"
-                    placeholder="Tu Nombre Real"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                />
-
-                <label htmlFor="phone">Teléfono (WhatsApp) *</label>
-                <input
-                    id="phone"
-                    type="tel"
-                    placeholder="Ej: 3456123456"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                />
-                
-                <label htmlFor="category">Categoría de Servicio *</label>
-                <select
-                    id="category"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    required
-                >
-                    <option value="">Selecciona tu rubro</option>
-                    {CATEGORIES.map(cat => (
-                        <option key={cat.value} value={cat.value}>{cat.label}</option>
-                    ))}
-                </select>
-
-                <div className="form-actions">
-                    {/* Mostrar Volver al Rol solo si NO venimos de un rol preseleccionado O si no tenemos rol aún */}
-                    {(!preSelectedRole && !profile?.role) && (
-                        <button type="button" onClick={() => setStep('select-role')} className="btn btn-secondary back-btn">← Volver al Rol</button>
-                    )}
-                    <button type="submit" className="btn btn-primary primary-btn" disabled={isSubmitting}>
-                        {isSubmitting ? 'Creando Perfil...' : 'Crear Perfil Profesional'}
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
-
-    const renderContent = () => {
-        switch (step) {
-            case 'select-role':
-                return renderRoleSelection();
-            case 'client-form':
-                return renderClientForm();
-            case 'professional-form':
-                return renderProfessionalForm();
-            default:
-                // Fallback de seguridad
-                return renderRoleSelection(); 
-        }
+  const handleSaveProfile = async (e, roleToSave) => {
+    e.preventDefault();
+    if (!authUser || isSubmitting) return;
+  
+    if (!fullName.trim()) {
+      alert("Por favor, ingresa tu Nombre y Apellido.");
+      return;
+    }
+    if (!phone.trim()) {
+      alert("Por favor, ingresa tu número de teléfono.");
+      return;
+    }
+    if (roleToSave === 'professional' && categories.length === 0) {
+      alert("Para ser profesional, debes seleccionar al menos una categoría de servicio.");
+      return;
+    }
+  
+    setIsSubmitting(true);
+  
+    const newProfileData = {
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      role: roleToSave,
+      isProfileComplete: true,
+      isServicePublished: roleToSave === 'professional' ? (globalUserProfile?.isServicePublished || false) : false,
+      ...(roleToSave === 'professional' && { categories, bio: bio.trim() }),
     };
 
-    return (
-        <div className="complete-profile-container">
-            {renderContent()}
+    try {
+      if (authUser.displayName !== fullName.trim()) {
+        await updateAuthProfile(authUser, { displayName: fullName.trim() });
+      }
+      
+      if (isSwitchingToProfessional && globalUserProfile?.role === 'client' && roleToSave === 'professional') {
+        await updateUserProfileRole(authUser.uid, 'professional');
+      }
+
+      await saveUserProfile(authUser.uid, newProfileData);
+      
+      sessionStorage.removeItem('switchingToProfessional');
+
+      await refreshProfile(); 
+    
+      navigate(`/dashboard/${roleToSave === 'client' ? 'cliente' : 'profesional'}`, { replace: true });  
+  
+    } catch (error) {
+      console.error('Error al guardar perfil:', error);
+      alert("Hubo un error al guardar tu perfil. Intenta de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRoleSelect = (role) => {
+    const newStepRole = globalUserProfile?.role || role; 
+    setStep(newStepRole === 'client' ? 'client-form' : 'professional-form');
+  };
+
+  const renderRoleSelection = () => (
+    <div className="card profile-step selection">
+      <h1>¡Hola{authUser?.displayName ? `, ${authUser.displayName}` : ''}!</h1>
+      <p className="subtitle">
+        Vemos que es tu primera vez, o tu perfil está incompleto. 
+        Para continuar, dinos: ¿Cómo quieres usar la plataforma?
+      </p>
+      <div className="role-options">
+        <div className="role-card client-card" onClick={() => handleRoleSelect('client')}>
+          <span className="material-icons-round"><GroupRoundedIcon sx={{ fontSize: '2.5rem', color: 'var(--primary)' }}/></span>
+          <h3>Soy Cliente</h3>
+          <p>Quiero encontrar profesionales y contratar servicios.</p>
+          <button className="btn btn-primary select-btn">Seleccionar Cliente →</button>
         </div>
-    );
+        <div className="role-card professional-card" onClick={() => handleRoleSelect('professional')}>
+          <span className="material-icons-round"><EngineeringRoundedIcon sx={{ fontSize: '2.5rem', color: 'var(--accent)' }}/></span>
+          <h3>Soy Profesional</h3>
+          <p>Quiero ofrecer mis servicios y conseguir nuevos trabajos.</p>
+          <button className="btn btn-primary select-btn">Seleccionar Profesional →</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderClientForm = () => (
+    <div className="card profile-step form-view">
+      <h2>Completa tu Perfil (Cliente)</h2>
+      <p className="subtitle text-secondary">Solo necesitamos unos pocos datos más para terminar el registro.</p>
+
+      <form onSubmit={(e) => handleSaveProfile(e, 'client')}>
+        <label htmlFor="fullName">Nombre y Apellido *</label>
+        <input
+          id="fullName"
+          type="text"
+          placeholder="Tu Nombre Real"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+        />
+
+        <label htmlFor="phone">Teléfono (WhatsApp) *</label>
+        <input
+          id="phone"
+          type="tel"
+          placeholder="Ej: 3456123456"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          required
+        />
+
+        <div className="form-actions">
+          {(!preSelectedRole && !globalUserProfile?.role && !isSwitchingToProfessional) && (
+            <button type="button" onClick={() => setStep('select-role')} className="btn btn-secondary back-btn">← Volver al Rol</button>
+          )}
+          <button type="submit" className="btn btn-primary primary-btn" disabled={isSubmitting}>
+            {isSubmitting ? 'Finalizando Perfil...' : 'Completar Registro'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+
+  const renderProfessionalForm = () => (
+    <div className="card profile-step form-view">
+      <h2>{isSwitchingToProfessional ? 'Completa tus Datos Profesionales' : 'Completa tu Perfil (Profesional)'}</h2>
+      <p className="subtitle text-secondary">
+        {isSwitchingToProfessional
+          ? 'Para usar tu cuenta como profesional, necesitamos estos datos adicionales.' 
+          : 'Te pedimos más detalles para darte visibilidad en tu rubro.'}
+      </p>
+      
+      <form onSubmit={(e) => handleSaveProfile(e, 'professional')}>
+        <label htmlFor="fullName">Nombre y Apellido (Real) *</label>
+        <input
+          id="fullName"
+          type="text"
+          placeholder="Tu Nombre Real"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+        />
+
+        <label htmlFor="phone">Teléfono (WhatsApp) *</label>
+        <input
+          id="phone"
+          type="tel"
+          placeholder="Ej: 3456123456"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          required
+        />
+        
+        <label>Categorías de Servicio * (Busca y selecciona una o más)</label>
+        <Select
+          isMulti
+          name="categories"
+          options={CATEGORIES}
+          placeholder="Busca tu categoría..."
+          value={CATEGORIES.filter(opt => categories.includes(opt.value))}
+          onChange={(selected) => {
+            setCategories(selected ? selected.map(opt => opt.value) : []);
+          }}
+          noOptionsMessage={() => "No se encontraron categorías"}
+          styles={{
+            control: (base) => ({
+              ...base,
+              borderColor: 'var(--border-medium)',
+              borderRadius: 'var(--radius-md)',
+              padding: '2px',
+              minHeight: '45px',
+              boxShadow: 'none',
+              '&:hover': { borderColor: 'var(--primary)' },
+            }),
+            multiValue: (base) => ({
+              ...base,
+              backgroundColor: 'var(--primary-light)',
+              color: 'var(--primary)',
+            }),
+            multiValueLabel: (base) => ({
+              ...base,
+              color: 'var(--primary)',
+            }),
+            multiValueRemove: (base) => ({
+              ...base,
+              color: 'var(--primary)',
+              ':hover': {
+                backgroundColor: 'var(--primary)',
+                color: 'white',
+              },
+            }),
+          }}
+        />
+        {categories.length === 0 && (
+          <p style={{ color: 'var(--error)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+            Debes seleccionar al menos una categoría
+          </p>
+        )}
+
+        <label htmlFor="bio">Descripción de tu Servicio (Opcional)</label>
+        <textarea
+          id="bio"
+          placeholder="Describe tu experiencia, los servicios que ofreces, horarios..."
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          rows={4}
+          style={{ resize: 'vertical' }}
+        />
+
+        <div className="form-actions">
+          {(!preSelectedRole && !globalUserProfile?.role && !isSwitchingToProfessional) && (
+            <button type="button" onClick={() => setStep('select-role')} className="btn btn-secondary back-btn">← Volver al Rol</button>
+          )}
+          <button type="submit" className="btn btn-primary primary-btn" disabled={isSubmitting || categories.length === 0}>
+            {isSubmitting ? 'Guardando...' : isSwitchingToProfessional ? 'Activar Modo Profesional' : 'Crear Perfil Profesional'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+
+  const renderContent = () => {
+    switch (step) {
+      case 'select-role':
+        return renderRoleSelection();
+      case 'client-form':
+        return renderClientForm();
+      case 'professional-form':
+        return renderProfessionalForm();
+      default:
+        return renderRoleSelection(); 
+    }
+  };
+
+  return (
+    <div className="complete-profile-container">
+      {renderContent()}
+    </div>
+  );
 };
 
-export default CompleteProfile;
+export default CompleteProfile

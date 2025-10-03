@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import './ServiciosPage.css';
 import ProfessionalCards from '../components/ProfessionalCards';
 import { getProfessionalProfiles } from '../firestore'; 
+import { AuthContext } from '../App';
 
 const ServiciosPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(''); // Estado para la categoría seleccionada
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [professionals, setProfessionals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user } = useContext(AuthContext);
 
-  // Lista de categorías (debe coincidir con las opciones de CompleteProfile.jsx)
   const CATEGORIES = [
     { value: 'carpinteria', label: 'Carpintería' },
     { value: 'electricidad', label: 'Electricidad' },
@@ -20,13 +22,11 @@ const ServiciosPage = () => {
     { value: 'informatica', label: 'Informática/Reparación PC' },
   ];
 
-  // Carga inicial de profesionales
   useEffect(() => {
     const fetchProfessionals = async () => {
       try {
         setLoading(true);
-        // Llama a la nueva función de firestore.js
-        const data = await getProfessionalProfiles(); 
+        const data = await getProfessionalProfiles(user?.uid); 
         setProfessionals(data);
         setError(null);
       } catch (err) {
@@ -38,77 +38,68 @@ const ServiciosPage = () => {
     };
 
     fetchProfessionals();
-  }, []);
+  }, [user?.uid]);
 
-  // Lógica de filtrado (se realiza en el frontend)
   const filteredProfessionals = professionals.filter(pro => {
-    // 1. Filtrado por categoría
-    const categoryMatch = selectedCategory ? pro.category === selectedCategory : true;
+    // Filtrado por categoría
+    const categoryMatch = selectedCategory 
+      ? pro.categories && pro.categories.includes(selectedCategory)
+      : true;
     
-    // 2. Filtrado por término de búsqueda (nombre, categoría)
+    // Filtrado por búsqueda
     const term = searchTerm.toLowerCase().trim();
     const termMatch = !term || 
                       (pro.fullName && pro.fullName.toLowerCase().includes(term)) ||
-                      (pro.category && pro.category.toLowerCase().includes(term));
+                      (pro.categories && pro.categories.some(cat => cat.toLowerCase().includes(term)));
                       
     return categoryMatch && termMatch;
   });
   
-  // La función de búsqueda solo evita el recargo de página si es reactivo
   const handleSearch = (e) => {
     e.preventDefault();
   };
 
-  const SearchComponent = () => (
-    <div className="card" style={{ padding: 'var(--spacing-2xl)', marginBottom: 'var(--spacing-2xl)', marginTop: 'var(--spacing-3xl)' }}>
-        <h2 style={{fontSize: 'var(--text-2xl)', color: 'var(--text-primary)', marginBottom: 'var(--spacing-lg)'}}>
-            Encontrá el profesional que necesitás
-        </h2>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: 'var(--spacing-md)', maxWidth: '800px', margin: '0 auto', marginBottom: 'var(--spacing-lg)' }}>
-            <div style={{ flex: 1, position: 'relative' }}>
-                {/* Se asume que tienes un ícono de búsqueda en tus estilos */}
-                <span className="material-icons-round" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                    search
-                </span>
-                <input
-                    type="text"
-                    placeholder="¿Qué servicio buscás hoy? (Ej: Plomero)"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    // Estilo in-line para sobreescribir el padding si es necesario
-                    style={{ paddingLeft: '40px' }} 
-                />
-            </div>
-            <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                style={{ minWidth: '150px' }}
-            >
-                <option value="">Todas las Categorías</option>
-                {CATEGORIES.map(cat => (
-                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                ))}
-            </select>
-            <button type="submit" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
-                Buscar
-            </button>
-        </form>
-    </div>
-  );
-
-
   return (
     <div className="container">
-      {SearchComponent()}
+      <div className="card" style={{ padding: 'var(--spacing-2xl)', marginBottom: 'var(--spacing-2xl)', marginTop: 'var(--spacing-3xl)' }}>
+        <h2 style={{fontSize: 'var(--text-2xl)', color: 'var(--text-primary)', marginBottom: 'var(--spacing-lg)'}}>
+          Encontrá el profesional que necesitás
+        </h2>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: 'var(--spacing-md)', maxWidth: '800px', margin: '0 auto', marginBottom: 'var(--spacing-lg)' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <span className="material-icons-round" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+              search
+            </span>
+            <input
+              type="text"
+              placeholder="¿Qué servicio buscás hoy? (Ej: Plomero)"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ paddingLeft: '40px' }} 
+            />
+          </div>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            style={{ minWidth: '150px' }}
+          >
+            <option value="">Todas las Categorías</option>
+            {CATEGORIES.map(cat => (
+              <option key={cat.value} value={cat.value}>{cat.label}</option>
+            ))}
+          </select>
+          <button type="submit" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
+            Buscar
+          </button>
+        </form>
+      </div>
 
       {loading && <p style={{textAlign: 'center', fontSize: 'var(--text-lg)'}}>Cargando lista de profesionales...</p>}
       {error && <p style={{textAlign: 'center', color: 'red', fontSize: 'var(--text-lg)'}}>{error}</p>}
       
       {!loading && (
-        // El componente ProfessionalCards ahora recibe los datos filtrados
         <ProfessionalCards professionals={filteredProfessionals} showTitle={false}/>
       )}
-
     </div>
   );
 };
